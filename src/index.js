@@ -10,7 +10,7 @@ const initializer = () => {
     inquirer
     .prompt([
         {
-            type: "checkbox",
+            type: "list",
             name: "mainMenu",
             message: "Please select from one of the following...",
             choices: [
@@ -25,8 +25,8 @@ const initializer = () => {
                 "View Budget of Each Department",
                 "Terminate Program"
             ],
-            message: "Select One of the Options",
-            name: "menu",
+            // message: "Select One of the Options",
+            // name: "menu",
         },
     ])
 
@@ -73,7 +73,6 @@ const viewDepartments = async () => {
     const department = new Department();
     console.table(await department.getDepartments());
     initializer();
-};
-
+}
 
 initializer();
