@@ -1,10 +1,6 @@
 const inquirer = require("inquirer");
-// const Department = require("./lib/Department");
-// const Employee = require("./lib/Employee");
-// const Role = require("./lib/Role");
 const db = require("./config/connection");
 require("console.table");
-// const { start } = require("repl");
 
 function initializer()  {
     inquirer
@@ -83,6 +79,8 @@ const addDepartment = async () => {
             if (err) throw (err);
             console.log(res),
             console.log("Department added");
+            console.table(res)
+            initializer();
         })
     
     })
@@ -94,8 +92,21 @@ const viewEmployees = async () => {
         if (err) throw(err);
         console.table(res)
         initializer();
-      })
+    })
+    
+    // return query
+    // initializer();
 }
+
+// .then (async (response) => {
+//     // query to get departments
+//     let query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)"
+//     db.promise().query(query, [response.title, response.salary, response.departmentId])
+//     .then(
+//     console.log( "Role added!"))
+//     initializer();
+// })
+// }
 
 const addEmployee = async () => {
     inquirer
@@ -121,18 +132,30 @@ const addEmployee = async () => {
             message: "What is the employee's manager ID?"
         },
     ])
-    .then (async(response) => {
-        let query = "INSERT INTO employee_db.employee(first_name, last_name, role_id, manager_id) VALUES(?)"
-        db.query(query, response.employeeName, response.employeeLastName, response.roleId, response.managerId, (err,res) => {
-            if (err) throw (err);
-            console.log(res,"Employee Added!");
+    .then ( (response) => {
+        let query = "INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)"
+        db.query(query, [response.employeeName, response.employeeLastName, response.roleId, response.managerId], (err,res) => {
+            if (err) throw(err);
+            console.log(res),
+            console.log("Employee added");
+            console.table(res)
             initializer();
         })
     })
 }
 
+// .then (async (response) => {
+//     // query to get departments
+//     let query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)"
+//     db.promise().query(query, [response.title, response.salary, response.departmentId])
+//     .then(
+//     console.log( "Role added!"))
+//     initializer();
+// })
+// }
+
 const viewRoles = async () => {
-    let query = "Select * FROM employee_db.role"
+    let query = "Select * FROM role"
     db.query(query, (err, res) => {
       if (err) throw(err);
       console.table(res)
@@ -141,6 +164,9 @@ const viewRoles = async () => {
   }
 
   const addRole = async () => {
+    // query first for department
+    let query = "Select * FROM department"
+    db.query(query)
     inquirer
     .prompt([
         {
@@ -154,17 +180,26 @@ const viewRoles = async () => {
             message: "What is the salary for this role?",
         },
         {
-            type: "input",
+            type: "list",
+            // list
             name: "departmentId",
-            message: "What department ID will this role be assigned to?",
+            message: "What department will this role be assigned to?",
+            choices: [
+                "1. Customer Service",
+                "2. Sales",
+                "3. Technical Support",
+                "4. Management",
+                "5. Financing"
+            ]
         },
     ])
     .then (async (response) => {
-        let query = "INSERT INTO employee_db.role(title, salary, department_id) VALUES(?)"
-        db.query(query, response.title, response.salary, response.department_id, (err, res) => {
-            if(err) throw(err);
-            console.log(res, "Role added!")
-        })
+        // query to get departments
+        let query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)"
+        db.promise().query(query, [response.title, response.salary, response.departmentId])
+        .then(
+        console.log( "Role added!"))
+        initializer();
     })
   }
 
