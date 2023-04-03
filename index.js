@@ -165,8 +165,10 @@ const viewRoles = async () => {
 
   const addRole = async () => {
     // query first for department
-    let query = "Select * FROM department"
-    db.query(query)
+    let query = "Select department.name, department.id FROM department"
+    // .map()
+    db.promise().query(query)
+    .then(([response]) => {
     inquirer
     .prompt([
         {
@@ -184,13 +186,8 @@ const viewRoles = async () => {
             // list
             name: "departmentId",
             message: "What department will this role be assigned to?",
-            choices: [
-                "1. Customer Service",
-                "2. Sales",
-                "3. Technical Support",
-                "4. Management",
-                "5. Financing"
-            ]
+         
+            choices: response.map(({name, id}) => ({name: name, value: id}))
         },
     ])
     .then (async (response) => {
@@ -201,30 +198,63 @@ const viewRoles = async () => {
         console.log( "Role added!"))
         initializer();
     })
+})
   }
 
   const updateEmployee = async () => {
-    inquirer
-    .prompt([
-        {
-            type: "input",
-            name: "chooseEmployee",
-            message: "Which employee would you like to update?"
-        },
-        {
-            type: "input",
-            name: "updateEmployee",
-            message: "Which role will you be assigning to the employee?"
-        },
-    ])
-    .then (async (response) => {
-        let query = "Select employee.first_name, employee.last_name, role.title"
-    db.query(query, response.first_name, response.last_name, response.role_id, (err, res) => {
-        if (err) throw(err);
-        console.table(res)
-        initializer();
-      })
-    })
-  }
+    let query = "Select employee.first_name, employee.last_name, employee.role_id"
+    db.promise().query(query)
+    .then( async () => {
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employeeList',
+                message: 'Which employee would you like to update?',
+                choices: response.map(({first_name, last_name, role_id}) => ({name: first_name + last_name, value: role_id }))
+            },
+        ])
 
-initializer();
+        .then(async () => {
+            let query ="UPDATE employee(first_name, last_name, role_id) VALUES(?, ?, ?)"
+            db.query(query, inquirer
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'updateEmployeeRole',
+                        message: 'Which new role is being assigned to your employee?'
+                    }
+                ]))
+        })
+    })
+    // inquirer
+    // .prompt([
+    //     {
+    //         type: 'input',
+    //         name: 'callEmployee'
+    //     }
+    //     // array of objects
+    //     // call out the key
+    //     // query that gets data from employees
+    //     // .then for an array
+    //     // map out employees
+    //     // .then response
+    //     // store the employee to update
+    //     // another query to get roles
+    //     // role.title role.id FROM role
+    //     // .then new Role .map() roles
+    //     // .then query for updating employee and setting role VALUES(???)
+
+    //     {
+    //         type: "input",
+    //         name: "chooseEmployee",
+    //         message: "Which employee would you like to update?"
+    //     },
+    //     {
+    //         type: "input",
+    //         name: "updateEmployee",
+    //         message: "Which role will you be assigning to the employee?"
+    //     },
+    // ])
+}
+    initializer();
